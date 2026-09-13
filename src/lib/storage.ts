@@ -185,7 +185,7 @@ export async function fetchSheetDbResponses(): Promise<ResponseRecord[]> {
 
   return rows.flatMap((row, index) => {
     const ratings = {} as Ratings;
-    const name = String(row["Nama "] ?? row["Nama"] ?? "").trim();
+    const name = String(value(row, "Nama") ?? "").trim();
     const platformSekarang = String(value(row, "Platform streaming musik yang paling sering Anda gunakan saat ini") ?? "").trim();
     const hasResponse = name.length > 0 || platformSekarang.length > 0;
     if (!hasResponse) return [];
@@ -197,10 +197,10 @@ export async function fetchSheetDbResponses(): Promise<ResponseRecord[]> {
     const result = computeSaw(ratings);
     return [{
       id: `sheetdb-${index}`,
-      createdAt: String(row["Timestamp"] ?? ""),
+      createdAt: String(value(row, "Timestamp") ?? ""),
       nama: name || "Tanpa nama",
-      mahasiswa: String(row["Apakah Anda merupakan mahasiswa?"] ?? "") === "Tidak" ? "Tidak" : "Iya",
-      semester: String(row["Semester saat ini :"] ?? "-"),
+      mahasiswa: String(value(row, "Apakah Anda merupakan mahasiswa?") ?? "") === "Tidak" ? "Tidak" : "Iya",
+      semester: String(value(row, "Semester saat ini") ?? "-"),
       frekuensi: String(value(row, "Seberapa sering Anda menggunakan platform streaming musik?") ?? "-"),
       platformSekarang: platformSekarang || "-",
       ratings,
