@@ -1,0 +1,7 @@
+node_modules
+.output
+.wrangler
+.nitro
+.vinxi
+dist
+*.local
