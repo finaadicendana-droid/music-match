@@ -185,20 +185,24 @@ export async function fetchSheetDbResponses(): Promise<ResponseRecord[]> {
 
   return rows.flatMap((row, index) => {
     const ratings = {} as Ratings;
+    const name = String(row["Nama "] ?? row["Nama"] ?? "").trim();
+    const platformSekarang = String(value(row, "Platform streaming musik yang paling sering Anda gunakan saat ini") ?? "").trim();
+    const hasResponse = name.length > 0 || platformSekarang.length > 0;
+    if (!hasResponse) return [];
+
     for (const criterion of CRITERIA) {
       const parsed = Number(value(row, fields[criterion.key]));
-      if (!Number.isFinite(parsed) || parsed < 1 || parsed > 5) return [];
-      ratings[criterion.key] = parsed;
+      ratings[criterion.key] = Number.isFinite(parsed) && parsed >= 1 && parsed <= 5 ? parsed : 3;
     }
     const result = computeSaw(ratings);
     return [{
       id: `sheetdb-${index}`,
       createdAt: String(row["Timestamp"] ?? ""),
-      nama: String(row["Nama "] ?? row["Nama"] ?? "Tanpa nama"),
+      nama: name || "Tanpa nama",
       mahasiswa: String(row["Apakah Anda merupakan mahasiswa?"] ?? "") === "Tidak" ? "Tidak" : "Iya",
       semester: String(row["Semester saat ini :"] ?? "-"),
       frekuensi: String(value(row, "Seberapa sering Anda menggunakan platform streaming musik?") ?? "-"),
-      platformSekarang: String(value(row, "Platform streaming musik yang paling sering Anda gunakan saat ini") ?? "-"),
+      platformSekarang: platformSekarang || "-",
       ratings,
       budget: String(value(row, "Berapa kisaran biaya berlangganan") ?? "-"),
       aktivitas: String(value(row, "Untuk aktivitas apa Anda paling sering menggunakan platform streaming musik?") ?? "-"),
