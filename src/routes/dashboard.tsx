@@ -26,18 +26,15 @@ function Dashboard() {
 
   useEffect(() => {
     const localRows = loadResponses().filter((row) => !row.id.startsWith("seed-"));
-    setRows(localRows);
     fetchSheetDbResponses()
       .then((sheetRows) => {
-        const responseKey = (row: ResponseRecord) =>
-          `${row.nama.trim().toLowerCase()}|${row.createdAt}|${Object.values(row.ratings).join(",")}`;
-        const localKeys = new Set(localRows.map(responseKey));
-        const newSheetRows = sheetRows.filter((row) => !localKeys.has(responseKey(row)));
-        const mergedRows = [...localRows, ...newSheetRows];
-        setRows(mergedRows);
-        setDataSource(`${mergedRows.length} responden: data web + SheetDB`);
+        setRows(sheetRows);
+        setDataSource(`${sheetRows.length} responden dari SheetDB`);
       })
-      .catch(() => setDataSource(`${localRows.length} data web (SheetDB tidak tersedia)`));
+      .catch(() => {
+        setRows(localRows);
+        setDataSource(`${localRows.length} data lokal (SheetDB tidak tersedia)`);
+      });
   }, []);
 
   const stats = useMemo(() => {
